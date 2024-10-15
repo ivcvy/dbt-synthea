@@ -1,0 +1,35 @@
+name: dbt-synthea
+
+services:
+  dbt-synthea-duckdb:
+    container_name: dbt-synthea-duckdb
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    profiles: ["duckdb"]
+    restart: unless-stopped
+  
+  dbt-synthea-postgres:
+    container_name: dbt-synthea-postgres
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    profiles: ["postgres"]
+    restart: unless-stopped
+  
+  db:
+    image: postgres:latest
+    container_name: dbt-synthea-postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: dbt
+      POSTGRES_PASSWORD: dbt
+      POSTGRES_DB: dbt 
+    profiles: ["postgres"]
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
