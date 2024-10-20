@@ -1,1 +1,0 @@
-docker exec -it dbt-synthea-duckdb  /bin/bash
