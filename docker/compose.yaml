@@ -1,0 +1,56 @@
+name: dbt-synthea-${PROFILE}
+
+services:
+  duckdb:
+    container_name: dbt-synthea-${PROFILE}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - type: bind
+        source: ..
+        target: /app
+    profiles: ["duckdb"]
+    restart: unless-stopped
+  
+  postgres:
+    container_name: dbt-synthea-${PROFILE}
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    command: ["tail", "-f", "/dev/null"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - type: bind
+        source: ..
+        target: /app
+    profiles: ["postgres"]
+    restart: unless-stopped
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:latest
+    container_name: dbt-synthea-postgres-db
+    volumes:
+      - type: volume
+        source: postgres-data
+        target: /var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    profiles: ["postgres"]
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+
+networks:
+  default:
+    name: dbt-synthea-${PROFILE}
+    external: true
